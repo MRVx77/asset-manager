@@ -42,5 +42,3 @@ function LoginPage() {
 }
 
 export default LoginPage;
-
-//7.32
