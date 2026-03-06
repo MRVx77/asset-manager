@@ -22,9 +22,19 @@ function CategoryManager({
   const [categories, setCategories] = useState<Category[]>(intialCategories);
   const [newCategoryName, setNewCategoryName] = useState("");
 
+  const handleAddNewCategory = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("name", newCategoryName);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <form className="space-y-4">
+      <form onSubmit={handleAddNewCategory} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="categoryName">New Category</Label>
           <div className="flex gap-2">
@@ -34,7 +44,10 @@ function CategoryManager({
               placeholder="Enter Category name"
               onChange={(e) => setNewCategoryName(e.target.value)}
             />
-            <Button>
+            <Button
+              type="submit"
+              className="bg-teal-500 hover:bg-teal-700 text-white cursor-pointer"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add
             </Button>
