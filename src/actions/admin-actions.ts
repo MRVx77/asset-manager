@@ -2,8 +2,8 @@
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { category } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { category, user } from "@/lib/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
@@ -62,13 +62,37 @@ export async function addNewCategoryAction(formData: FormData) {
 }
 
 export async function getAllCategoriesAction() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user || session.user.role !== "admin") {
+    throw new Error("You must be an admin to access the data");
+  }
+
   try {
     return await db.select().from(category).orderBy(category.name);
   } catch (error) {
     console.log(error);
-    return {
-      success: false,
-      message: "Faild to fetch the category",
-    };
+    return [];
+  }
+}
+
+export async function getTotalUserCountAction() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user || session.user.role !== "admin") {
+    throw new Error("You must be an admin to add categories");
+  }
+
+  try {
+    const result = await db.select({ count: sql<number>`count(*)` }).from(user);
+
+    return result[0]?.count || 0;
+  } catch (error) {
+    console.log(error);
+    return 0;
   }
 }
