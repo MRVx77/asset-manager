@@ -5,7 +5,10 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useState } from "react";
-import { addNewCategoryAction } from "@/actions/admin-actions";
+import {
+  addNewCategoryAction,
+  deleteCategoryAction,
+} from "@/actions/admin-actions";
 import {
   Table,
   TableBody,
@@ -53,6 +56,14 @@ function CategoryManager({
     }
   };
 
+  const handleDeleteCategory = async (currentCategoryId: number) => {
+    const result = await deleteCategoryAction(currentCategoryId);
+
+    if (result.success) {
+      setCategories(categories.filter((c) => c.id !== currentCategoryId));
+    }
+  };
+
   return (
     <div className="space-y-6">
       <form onSubmit={handleAddNewCategory} className="space-y-4">
@@ -96,7 +107,12 @@ function CategoryManager({
                     {new Date(category.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <Button variant={"ghost"} size={"icon"}>
+                    <Button
+                      onClick={() => handleDeleteCategory(category.id)}
+                      variant={"ghost"}
+                      size={"icon"}
+                      className="cursor-pointer"
+                    >
                       <Trash2 className="h-5 w-5 text-red-500" />
                     </Button>
                   </TableCell>
