@@ -5,7 +5,6 @@ import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -28,12 +27,46 @@ type Category = {
   createdAt: Date;
 };
 
+type FormState = {
+  title: string;
+  description: string;
+  categoryId: string;
+  file: File | null;
+};
+
 interface UploadDialogProps {
   categories: Category[];
 }
 
 function UploadAsset({ categories }: UploadDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgressStatus, setUploadProgressStatus] = useState(0);
+  const [formState, setFormState] = useState<FormState>({
+    title: "",
+    description: "",
+    categoryId: "",
+    file: null,
+  });
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setFormState((prev) => ({ ...prev, categoryId: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormState((prev) => ({ ...prev, file }));
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -49,19 +82,30 @@ function UploadAsset({ categories }: UploadDialogProps) {
         <form className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" placeholder="Title" />
+            <Input
+              value={formState.title}
+              id="title"
+              name="title"
+              onChange={handleInputChange}
+              placeholder="Title"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Input
+              value={formState.description}
               id="description"
               name="description"
+              onChange={handleInputChange}
               placeholder="Description"
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select>
+            <Select
+              value={formState.categoryId}
+              onValueChange={handleCategoryChange}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a Category" />
               </SelectTrigger>
@@ -76,7 +120,12 @@ function UploadAsset({ categories }: UploadDialogProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="file">File</Label>
-            <Input id="file" type="file" accept="image/*" />
+            <Input
+              id="file"
+              onChange={handleFileChange}
+              type="file"
+              accept="image/*"
+            />
           </div>
           <DialogFooter>
             <Button type="submit">
