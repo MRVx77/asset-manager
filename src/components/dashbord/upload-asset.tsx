@@ -34,6 +34,12 @@ type FormState = {
   file: File | null;
 };
 
+type CloudinarySignature = {
+  signature: string;
+  timestamp: string;
+  apiKey: string;
+};
+
 interface UploadDialogProps {
   categories: Category[];
 }
@@ -67,6 +73,74 @@ function UploadAsset({ categories }: UploadDialogProps) {
     }
   };
 
+  async function getCloudinarySignauter(): Promise<CloudinarySignature> {
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const response = await fetch("/api/cloudinary/signature", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ timestamp }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create cloudinary signature");
+    }
+
+    return response.json();
+  }
+
+  const handleAssetUpload = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsUploading(true);
+    setUploadProgressStatus(0);
+    try {
+      const { signature, apiKey, timestamp } = await getCloudinarySignauter();
+      const cloudinaryData = new FormData();
+      cloudinaryData.append("file", formState.file as File);
+      cloudinaryData.append("api_key", apiKey);
+      cloudinaryData.append("timestamp", timestamp.toString());
+      cloudinaryData.append("signature", signature);
+      cloudinaryData.append("folder", "next-asset-manager");
+
+      const xhr = new XMLHttpRequest();
+      xhr.open(
+        "POST",
+        `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/auto/upload`,
+      );
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          setUploadProgressStatus(progress);
+        }
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cloudinaryPromise = new Promise<any>(async (resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } else {
+            reject(new Error("Upload to cloudinary failed"));
+          }
+        };
+        xhr.onerror = () => reject(new Error("Upload to cloudinary failed"));
+
+        const cloudinaryResponse = await cloudinaryPromise;
+        console.log(cloudinaryResponse);
+
+        const formData = new FormData();
+        formData.append("title", formState.title);
+        formData.append("description", formState.description);
+        formData.append("categoryId", formState.categoryId);
+        formData.append("fileUrl", cloudinaryResponse.secure_url);
+        formData.append("thumbUrl", cloudinaryResponse.secure_url);
+      });
+      xhr.send(cloudinaryData);
+    } catch (error) {}
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -79,7 +153,7 @@ function UploadAsset({ categories }: UploadDialogProps) {
         <DialogHeader>
           <DialogTitle>Upload New Asset</DialogTitle>
         </DialogHeader>
-        <form className="space-y-5">
+        <form onSubmit={handleAssetUpload} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input
