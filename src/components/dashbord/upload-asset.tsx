@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { uploadAssetAction } from "@/actions/dashbord-action";
 
 type Category = {
   id: number;
@@ -138,7 +139,25 @@ function UploadAsset({ categories }: UploadDialogProps) {
       formData.append("categoryId", formState.categoryId);
       formData.append("fileUrl", cloudinaryResponse.secure_url);
       formData.append("thumbUrl", cloudinaryResponse.secure_url);
-    } catch (error) {}
+
+      const result = await uploadAssetAction(formData);
+      if (result.success) {
+        setOpen(false);
+        setFormState({
+          title: "",
+          description: "",
+          categoryId: "",
+          file: null,
+        });
+      } else {
+        throw new Error(result?.error);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsUploading(false);
+      setUploadProgressStatus(0);
+    }
   };
 
   return (
@@ -201,7 +220,19 @@ function UploadAsset({ categories }: UploadDialogProps) {
               accept="image/*"
             />
           </div>
-          <DialogFooter>
+          {isUploading && uploadProgressStatus > 0 && (
+            <div className="mb-5 w-full bg-stone-100 rounded-full h-2">
+              <div
+                className="bg-teal-500 h-2 rounded-full"
+                style={{ width: `${uploadProgressStatus}%` }}
+              >
+                <p className="text-slate-500 text-xs mt-2 text-right">
+                  {uploadProgressStatus}% upload
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="mt-6">
             <Button type="submit">
               <Upload className="h-5 w-5 mr-2" />
               Upload Asset
@@ -214,4 +245,3 @@ function UploadAsset({ categories }: UploadDialogProps) {
 }
 
 export default UploadAsset;
-//10.23

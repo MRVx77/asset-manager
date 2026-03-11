@@ -25,7 +25,7 @@ export async function getCategoriesAction() {
   }
 }
 
-export async function uploadAsset(formData: FormData) {
+export async function uploadAssetAction(formData: FormData) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -66,7 +66,7 @@ export async function uploadAsset(formData: FormData) {
   }
 }
 
-export async function getUserAsset(userId: string) {
+export async function getUserAssetAction(userId: string) {
   try {
     return await db
       .select()
