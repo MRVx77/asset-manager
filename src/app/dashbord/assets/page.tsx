@@ -18,7 +18,6 @@ async function userAssetsPage() {
     getCategoriesAction(),
     getUserAssetAction(session?.user.id),
   ]);
-  console.log(assets);
 
   return (
     <div className="container py-6">
@@ -26,7 +25,7 @@ async function userAssetsPage() {
         <h1 className="text-3xl font-bold "> My Assets</h1>
         <UploadAsset categories={categories || []} />
       </div>
-      <AssetGrid />
+      <AssetGrid assets={assets} />
     </div>
   );
 }
