@@ -106,7 +106,7 @@ function UploadAsset({ categories }: UploadDialogProps) {
       const xhr = new XMLHttpRequest();
       xhr.open(
         "POST",
-        `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/auto/upload`,
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`,
       );
 
       xhr.upload.onprogress = (event) => {
@@ -126,18 +126,18 @@ function UploadAsset({ categories }: UploadDialogProps) {
           }
         };
         xhr.onerror = () => reject(new Error("Upload to cloudinary failed"));
-
-        const cloudinaryResponse = await cloudinaryPromise;
-        console.log(cloudinaryResponse);
-
-        const formData = new FormData();
-        formData.append("title", formState.title);
-        formData.append("description", formState.description);
-        formData.append("categoryId", formState.categoryId);
-        formData.append("fileUrl", cloudinaryResponse.secure_url);
-        formData.append("thumbUrl", cloudinaryResponse.secure_url);
       });
       xhr.send(cloudinaryData);
+
+      const cloudinaryResponse = await cloudinaryPromise;
+      console.log(cloudinaryResponse, "cloudinaryResponse");
+
+      const formData = new FormData();
+      formData.append("title", formState.title);
+      formData.append("description", formState.description);
+      formData.append("categoryId", formState.categoryId);
+      formData.append("fileUrl", cloudinaryResponse.secure_url);
+      formData.append("thumbUrl", cloudinaryResponse.secure_url);
     } catch (error) {}
   };
 
@@ -214,3 +214,4 @@ function UploadAsset({ categories }: UploadDialogProps) {
 }
 
 export default UploadAsset;
+//10.23

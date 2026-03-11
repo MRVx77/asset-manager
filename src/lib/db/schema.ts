@@ -105,7 +105,7 @@ export const asset = pgTable("asset", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  category: integer("category_id").references(() => category.id),
+  categoryId: integer("category_id").references(() => category.id),
   createdAt: timestamp("created_at")
     .notNull()
     .$default(() => new Date()),
@@ -144,7 +144,7 @@ export const assetsRelation = relations(asset, ({ one, many }) => ({
     references: [user.id],
   }),
   category: one(category, {
-    fields: [asset.category],
+    fields: [asset.categoryId],
     references: [category.id],
   }),
 }));
