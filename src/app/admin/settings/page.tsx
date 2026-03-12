@@ -1,5 +1,6 @@
 import {
   getAllCategoriesAction,
+  getTotalAssetCountAction,
   getTotalUserCountAction,
 } from "@/actions/admin-actions";
 import CategoryManager from "@/components/admin/category-manager";
@@ -13,9 +14,10 @@ import {
 import { Users } from "lucide-react";
 
 async function AdminSettingPage() {
-  const [categories, userCount] = await Promise.all([
+  const [categories, userCount, assetCount] = await Promise.all([
     getAllCategoriesAction(),
     getTotalUserCountAction(),
+    getTotalAssetCountAction(),
   ]);
 
   return (
@@ -46,7 +48,7 @@ async function AdminSettingPage() {
             <CardDescription>All uploaded asstes in platform</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-teal-600">100</p>
+            <p className="text-3xl font-bold text-teal-600">{assetCount}</p>
           </CardContent>
         </Card>
       </div>
