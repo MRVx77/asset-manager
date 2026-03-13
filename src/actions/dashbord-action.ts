@@ -6,7 +6,7 @@ import { asset, category, user } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { success, z } from "zod";
+import { z } from "zod";
 
 const AssetSchema = z.object({
   title: z.string(),
@@ -80,7 +80,7 @@ export async function getUserAssetAction(userId: string) {
   }
 }
 
-export async function getPublicAction(categoryId?: number) {
+export async function getPublicAssetAction(categoryId?: number) {
   try {
     let condition = and(eq(asset.isApproved, "approved"));
 

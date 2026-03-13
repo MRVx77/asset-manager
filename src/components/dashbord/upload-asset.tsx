@@ -221,21 +221,20 @@ function UploadAsset({ categories }: UploadDialogProps) {
             />
           </div>
           {isUploading && uploadProgressStatus > 0 && (
-            <div className="mb-5 w-full bg-stone-100 rounded-full h-2">
+            <div className="mb-6 w-full bg-stone-100 rounded-full h-2">
               <div
                 className="bg-teal-500 h-2 rounded-full"
                 style={{ width: `${uploadProgressStatus}%` }}
-              >
-                <p className="text-slate-500 text-xs mt-2 text-right">
-                  {uploadProgressStatus}% upload
-                </p>
-              </div>
+              ></div>
+              <p className="text-slate-500 text-sm font-bold mt-2 text-right">
+                {uploadProgressStatus}% upload
+              </p>
             </div>
           )}
           <DialogFooter className="mt-6">
-            <Button type="submit">
+            <Button type="submit" disabled={isUploading}>
               <Upload className="h-5 w-5 mr-2" />
-              Upload Asset
+              {isUploading ? "Uploading..." : "Upload Asset"}
             </Button>
           </DialogFooter>
         </form>
