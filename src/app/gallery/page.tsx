@@ -7,11 +7,9 @@ async function GalleryPage() {
     headers: await headers(),
   });
 
-  if (session && session.user?.role === "admin") {
-    redirect("/");
-  }
+  if (session && session.user?.role === "admin") redirect("/");
 
   return <div>gallary page</div>;
 }
-//8.36
+
 export default GalleryPage;
