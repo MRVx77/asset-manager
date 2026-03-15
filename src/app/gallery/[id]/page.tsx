@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import { Info, Loader2, Tag } from "lucide-react";
+import { Download, Info, Loader2, ShoppingCart, Tag } from "lucide-react";
 import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
@@ -63,7 +63,7 @@ async function GalleryContent({ params }: GalleryDelatiPageProps) {
   const hasPurchaseAsset = false;
 
   return (
-    <div className="min-h-screen container px-4 bg-white">
+    <div className="min-h-screen px-4 bg-white">
       <div className="container py-12">
         <div className="grid gap-12 md:grid-cols-3">
           <div className="md:col-span-2 space-y-8">
@@ -126,10 +126,24 @@ async function GalleryContent({ params }: GalleryDelatiPageProps) {
                           </p>
                         </div>
                       ) : hasPurchaseAsset ? (
-                        <Button></Button>
+                        <Button
+                          asChild
+                          className="w-full bg-green-600 text-white h-12"
+                        >
+                          <a download>
+                            <Download />
+                            Download Asset
+                          </a>
+                        </Button>
                       ) : (
                         <form action="">
-                          <Button></Button>
+                          <Button
+                            type={"submit"}
+                            className="w-full bg-black text-white h-12"
+                          >
+                            <ShoppingCart className="mr-2 h-6 w-6" />
+                            Purchase Now
+                          </Button>
                         </form>
                       )
                     ) : (
