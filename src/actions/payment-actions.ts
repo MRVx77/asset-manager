@@ -36,7 +36,49 @@ export async function createPaypalOrderAction(assetId: string) {
   }
 
   try {
+    const res = await fetch(
+      `${process.env.PAYPAL_API_URL}/v2/checkout/orders`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${Buffer.from(
+            `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`,
+          ).toString("base64")}`,
+        },
+        body: JSON.stringify({
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: assetId,
+              description: `Purchase of ${getAsset.title}`,
+              amount: {
+                currency_code: "USD",
+                value: "5.00",
+              },
+              custom_id: `${session.user.id}|${assetId}`,
+            },
+          ],
+          application_context: {
+            return_url: `${process.env.APP_URL}/api/paypal/capture?assetId=${assetId}`,
+            cancle_url: `${process.env.APP_URL}/gallery/${assetId}?cancelled=true`,
+          },
+        }),
+      },
+    );
+
+    const data = await res.json();
+    if (data.id) {
+      return {
+        orderId: data.id,
+        approvalLink: data.links.find((link: any) => link.rel === "approve")
+          .href,
+      };
+    } else {
+      throw new Error("Failed to create paypal order");
+    }
   } catch (error) {
     console.log(error);
+    throw new Error("Failed to create paypal order");
   }
 }

@@ -1,4 +1,5 @@
 import { getAssetByIdAction } from "@/actions/dashbord-action";
+import { createPaypalOrderAction } from "@/actions/payment-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,6 +62,19 @@ async function GalleryContent({ params }: GalleryDelatiPageProps) {
     : "U";
 
   const hasPurchaseAsset = false;
+
+  async function handlePurchase() {
+    "use server";
+    const result = await createPaypalOrderAction(id);
+
+    if (result.alreadyPurchaseTrue) {
+      redirect(`/gallery/${params.id}?success=true`);
+    }
+
+    if (result.approvalLink) {
+      redirect(result.approvalLink);
+    }
+  }
 
   return (
     <div className="min-h-screen px-4 bg-white">
@@ -136,7 +150,7 @@ async function GalleryContent({ params }: GalleryDelatiPageProps) {
                           </a>
                         </Button>
                       ) : (
-                        <form action="">
+                        <form action={handlePurchase}>
                           <Button
                             type={"submit"}
                             className="w-full bg-black text-white h-12"
