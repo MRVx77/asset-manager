@@ -1,4 +1,7 @@
-import { getPaypalAccessToken } from "@/actions/payment-actions";
+import {
+  getPaypalAccessTokenAction,
+  recordPurchaseAction,
+} from "@/actions/payment-actions";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -10,7 +13,7 @@ export async function GET(request: NextRequest) {
   const assetId = searchParams.get("assetId");
   const payerId = searchParams.get("PayerID");
 
-  const accessToken = getPaypalAccessToken();
+  const accessToken = await getPaypalAccessTokenAction();
 
   if (!token || !assetId) {
     redirect("/gallery");
@@ -39,8 +42,22 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     console.log(data, "payapl-capture");
 
-    if (data.staus === "COMPLETE") {
+    if (data.status === "COMPLETED") {
       //store purchase to db
+      const saveToDB = await recordPurchaseAction(
+        assetId,
+        token,
+        session.user.id,
+        5.0,
+      );
+      if (!saveToDB.success) {
+        return NextResponse.redirect(
+          new URL(`/gallery/${assetId}?error=record_failed`, request.url),
+        );
+      }
+      return NextResponse.redirect(
+        new URL(`/gallery/${assetId}?success=true`, request.url),
+      );
     } else {
       return NextResponse.redirect(
         new URL(`/gallery/${assetId}?error=payment-failed`, request.url),

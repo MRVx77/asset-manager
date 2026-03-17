@@ -119,6 +119,7 @@ export const payment = pgTable("payment", {
   amount: integer("amount").notNull(),
   currency: text("currency").default("USD").notNull(),
   status: text("status").notNull(),
+  provider: text("provider").notNull(),
   providerId: text("provider_id"),
   userId: text("user_id")
     .notNull()

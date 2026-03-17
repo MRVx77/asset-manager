@@ -1,13 +1,15 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { v4 as uuidv4 } from "uuid";
 import { db } from "@/lib/db";
-import { asset, purchase } from "@/lib/db/schema";
+import { asset, payment, purchase } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
-export async function getPaypalAccessToken() {
+export async function getPaypalAccessTokenAction() {
   const res = await fetch(`${process.env.PAYPAL_API_URL}/v1/oauth2/token`, {
     method: "POST",
     headers: {
@@ -28,7 +30,7 @@ export async function createPaypalOrderAction(assetId: string) {
     headers: await headers(),
   });
 
-  if (!session?.user) {
+  if (!session?.user.id) {
     redirect("/login");
   }
 
@@ -52,7 +54,7 @@ export async function createPaypalOrderAction(assetId: string) {
   }
 
   try {
-    const accessToken = await getPaypalAccessToken();
+    const accessToken = await getPaypalAccessTokenAction();
     const res = await fetch(
       `${process.env.PAYPAL_API_URL}/v2/checkout/orders`,
       {
@@ -94,6 +96,120 @@ export async function createPaypalOrderAction(assetId: string) {
     }
   } catch (error) {
     console.log(error);
-    throw new Error("Failed to create paypal order");
+    throw error;
+  }
+}
+
+export async function recordPurchaseAction(
+  assetId: string,
+  paypalOrderId: string,
+  userId: string,
+  price = 5.0,
+) {
+  try {
+    const existingPurchase = await db
+      .select()
+      .from(purchase)
+      .where(and(eq(purchase.assetId, assetId), eq(purchase.userId, userId)))
+      .limit(1);
+
+    if (existingPurchase.length > 0) {
+      return {
+        success: true,
+        alreadyExists: true,
+      };
+    }
+
+    const paymentUuid = uuidv4();
+    const purchaseUuid = uuidv4();
+
+    await db.insert(payment).values({
+      id: paymentUuid,
+      amount: Math.round(price * 100),
+      currency: "USD",
+      status: "completed",
+      provider: "paypal",
+      providerId: paypalOrderId,
+      userId: userId,
+      createdAt: new Date(),
+    });
+
+    await db.insert(purchase).values({
+      id: purchaseUuid,
+      assetId,
+      userId,
+      paymentId: paymentUuid,
+      price: Math.round(price * 100),
+      createdAt: new Date(),
+    });
+
+    //create invoice
+
+    revalidatePath(`gallery/${assetId}`);
+    revalidatePath(`/dashbord/purchases`);
+
+    return {
+      success: true,
+      purchaseId: purchaseUuid,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: "Failed to save purchase info",
+    };
+  }
+}
+
+export async function hasUserPurchaseAction(assetId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user.id) {
+    return false;
+  }
+
+  try {
+    const existingPurchase = await db
+      .select()
+      .from(purchase)
+      .where(
+        and(
+          eq(purchase.assetId, assetId),
+          eq(purchase.userId, session.user.id),
+        ),
+      )
+      .limit(1);
+
+    return existingPurchase.length > 0;
+  } catch (e) {
+    console.log(e);
+
+    return false;
+  }
+}
+
+export async function getAllUserPurchaseAssetsAction() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  try {
+    const userPurchases = await db
+      .select({ purchase: purchase, asset: asset })
+      .from(purchase)
+      .innerJoin(asset, eq(asset.id, purchase.assetId))
+      .where(eq(purchase.userId, session.user.id))
+      .orderBy(purchase.createdAt);
+
+    return userPurchases;
+  } catch (error) {
+    console.log(error);
+    return [];
   }
 }
