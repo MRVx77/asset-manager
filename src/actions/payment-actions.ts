@@ -166,7 +166,7 @@ export async function hasUserPurchaseAction(assetId: string) {
     headers: await headers(),
   });
 
-  if (!session?.user.id) {
+  if (!session?.user?.id) {
     return false;
   }
 

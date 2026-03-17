@@ -4,7 +4,6 @@ import {
 } from "@/actions/payment-actions";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -15,8 +14,10 @@ export async function GET(request: NextRequest) {
 
   const accessToken = await getPaypalAccessTokenAction();
 
-  if (!token || !assetId) {
-    redirect("/gallery");
+  if (!token || !payerId || !assetId) {
+    return NextResponse.redirect(
+      new URL(`/gallery?error=missing-params`, request.url),
+    );
   }
 
   try {

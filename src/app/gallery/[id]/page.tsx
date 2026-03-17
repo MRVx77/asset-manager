@@ -1,10 +1,20 @@
 import { getAssetByIdAction } from "@/actions/dashbord-action";
-import { createPaypalOrderAction } from "@/actions/payment-actions";
+import {
+  createPaypalOrderAction,
+  hasUserPurchaseAction,
+} from "@/actions/payment-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import { Download, Info, Loader2, ShoppingCart, Tag } from "lucide-react";
+import {
+  CheckCircle,
+  Download,
+  Info,
+  Loader2,
+  ShoppingCart,
+  Tag,
+} from "lucide-react";
 import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,9 +25,14 @@ interface GalleryDelatiPageProps {
   params: {
     id: string;
   };
+  searchParams: {
+    success?: string;
+    cancelled?: string;
+    error?: string;
+  };
 }
 
-function GalleryDetailsPage({ params }: GalleryDelatiPageProps) {
+function GalleryDetailsPage({ params, searchParams }: GalleryDelatiPageProps) {
   return (
     <Suspense
       fallback={
@@ -26,19 +41,26 @@ function GalleryDetailsPage({ params }: GalleryDelatiPageProps) {
         </div>
       }
     >
-      <GalleryContent params={params} />
+      <GalleryContent params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
 export default GalleryDetailsPage;
 
-async function GalleryContent({ params }: GalleryDelatiPageProps) {
+async function GalleryContent({
+  params,
+  searchParams,
+}: GalleryDelatiPageProps) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
+  const { id } = resolvedParams;
+  const success = resolvedSearchParams?.success;
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-
-  const { id } = await params;
 
   if (session && session?.user?.role === "admin") {
     redirect("/");
@@ -61,14 +83,16 @@ async function GalleryContent({ params }: GalleryDelatiPageProps) {
         .toUpperCase()
     : "U";
 
-  const hasPurchaseAsset = false;
+  const hasPurchaseAsset = session?.user.id
+    ? await hasUserPurchaseAction(id)
+    : false;
 
   async function handlePurchase() {
     "use server";
     const result = await createPaypalOrderAction(id);
 
     if (result.alreadyPurchaseTrue) {
-      redirect(`/gallery/${params.id}?success=true`);
+      redirect(`/gallery/${id}?success=true`);
     }
 
     if (result.approvalLink) {
@@ -78,6 +102,12 @@ async function GalleryContent({ params }: GalleryDelatiPageProps) {
 
   return (
     <div className="min-h-screen px-4 bg-white">
+      {success && (
+        <div className="flex items-center gap-3 p-4 bg-red-50 text-gray-700 rounded-lg border border-gray-300">
+          <CheckCircle className="w-5 h-5 text-green-500" />
+          <p>Purchse you can now download the Image</p>
+        </div>
+      )}
       <div className="container py-12">
         <div className="grid gap-12 md:grid-cols-3">
           <div className="md:col-span-2 space-y-8">

@@ -40,8 +40,9 @@ async function GalleryPage({ searchParams }: GallaryPageProps) {
 export default GalleryPage;
 
 async function GalleryContent({ searchParams }: GallaryPageProps) {
-  const categoryId = searchParams.category
-    ? Number.parseInt(searchParams.category)
+  const resolvedSearchParams = await searchParams;
+  const categoryId = resolvedSearchParams?.category
+    ? Number.parseInt(resolvedSearchParams.category)
     : undefined;
 
   const categories = await getCategoriesAction();
