@@ -7,6 +7,22 @@ import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+export async function getPaypalAccessToken() {
+  const res = await fetch(`${process.env.PAYPAL_API_URL}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${Buffer.from(
+        `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`,
+      ).toString("base64")}`,
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  const data = await res.json();
+  return data.access_token;
+}
+
 export async function createPaypalOrderAction(assetId: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -36,15 +52,14 @@ export async function createPaypalOrderAction(assetId: string) {
   }
 
   try {
+    const accessToken = await getPaypalAccessToken();
     const res = await fetch(
       `${process.env.PAYPAL_API_URL}/v2/checkout/orders`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${Buffer.from(
-            `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`,
-          ).toString("base64")}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           intent: "CAPTURE",
@@ -61,7 +76,7 @@ export async function createPaypalOrderAction(assetId: string) {
           ],
           application_context: {
             return_url: `${process.env.APP_URL}/api/paypal/capture?assetId=${assetId}`,
-            cancle_url: `${process.env.APP_URL}/gallery/${assetId}?cancelled=true`,
+            cancel_url: `${process.env.APP_URL}/gallery/${assetId}?cancelled=true`,
           },
         }),
       },
