@@ -103,9 +103,9 @@ async function GalleryContent({
   return (
     <div className="min-h-screen px-4 bg-white">
       {success && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 text-gray-700 rounded-lg border border-gray-300">
+        <div className="flex items-center gap-3 p-4 bg-red-50 text-gray-700 rounded-lg border border-green-300">
           <CheckCircle className="w-5 h-5 text-green-500" />
-          <p>Purchse you can now download the Image</p>
+          <p>Purchased, you can now download the Image</p>
         </div>
       )}
       <div className="container py-12">
@@ -172,9 +172,9 @@ async function GalleryContent({
                       ) : hasPurchaseAsset ? (
                         <Button
                           asChild
-                          className="w-full bg-green-600 text-white h-12"
+                          className=" cursor-pointer w-full bg-green-600 text-white h-12"
                         >
-                          <a download>
+                          <a href={`/api/download/${id}`} download>
                             <Download />
                             Download Asset
                           </a>
@@ -183,7 +183,7 @@ async function GalleryContent({
                         <form action={handlePurchase}>
                           <Button
                             type={"submit"}
-                            className="w-full bg-black text-white h-12"
+                            className=" cursor-pointer w-full bg-black text-white h-12"
                           >
                             <ShoppingCart className="mr-2 h-6 w-6" />
                             Purchase Now
@@ -194,7 +194,7 @@ async function GalleryContent({
                       <>
                         <Button
                           asChild
-                          className="w-full bg-black text-white h-12"
+                          className="cursor-pointer w-full bg-black text-white h-12"
                         >
                           <Link href={"/login"}>Sign In to Purchase</Link>
                         </Button>
