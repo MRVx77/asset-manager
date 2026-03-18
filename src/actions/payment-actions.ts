@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { createInvoiceAction } from "./invoice-actions";
 
 export async function getPaypalAccessTokenAction() {
   const res = await fetch(`${process.env.PAYPAL_API_URL}/v1/oauth2/token`, {
@@ -144,6 +145,11 @@ export async function recordPurchaseAction(
     });
 
     //create invoice
+    const invoiceResult = await createInvoiceAction(purchaseUuid);
+
+    if (!invoiceResult.success) {
+      console.error("Faild to create Invoice");
+    }
 
     revalidatePath(`gallery/${assetId}`);
     revalidatePath(`/dashbord/purchases`);
