@@ -48,10 +48,8 @@ async function GalleryContent({ searchParams }: GallaryPageProps) {
   const categories = await getCategoriesAction();
   const asset = await getPublicAssetAction(categoryId);
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Page Wrapper */}
+    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Category Bar */}
         <div className="sticky top-16 z-30 backdrop-blur bg-white/70 border-b">
           <div className="flex gap-2 overflow-x-auto py-3">
             <Button
@@ -83,7 +81,6 @@ async function GalleryContent({ searchParams }: GallaryPageProps) {
           </div>
         </div>
 
-        {/* Content */}
         <div className="py-10 sm:py-12">
           {asset.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -103,7 +100,6 @@ async function GalleryContent({ searchParams }: GallaryPageProps) {
                   className="group block"
                 >
                   <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300">
-                    {/* Image */}
                     <div className="relative aspect-square">
                       <Image
                         src={asset.fileUrl}
@@ -113,10 +109,8 @@ async function GalleryContent({ searchParams }: GallaryPageProps) {
                       />
                     </div>
 
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
 
-                    {/* Content */}
                     <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-4 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                       <h3 className="text-white font-semibold text-sm sm:text-base line-clamp-1">
                         {asset.title}

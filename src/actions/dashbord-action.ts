@@ -2,10 +2,11 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { asset, category, user } from "@/lib/db/schema";
+import { asset, category, purchase, user } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const AssetSchema = z.object({
@@ -125,5 +126,55 @@ export async function getAssetByIdAction(assetId: string) {
   } catch (error) {
     console.log(error);
     return null;
+  }
+}
+
+export async function deleteAssetAction(assteId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      redirect("/gallery");
+    }
+
+    const assetExist = await db.query.asset.findFirst({
+      where: eq(asset.id, assteId),
+    });
+
+    if (!assetExist) {
+      throw new Error("Asset not found");
+    }
+
+    if (assetExist.userId !== session.user.id) {
+      throw new Error("You are not allowed to delete this asset");
+    }
+
+    const purchaseExists = await db.query.purchase.findFirst({
+      where: eq(purchase.assetId, assteId),
+    });
+
+    if (purchaseExists) {
+      throw new Error(
+        "This asset cannot be deleted because users have already purchased it",
+      );
+    }
+
+    await db.delete(asset).where(eq(asset.id, assteId));
+
+    revalidatePath("/dashbord/assets");
+    revalidatePath("/gallery");
+
+    return {
+      success: true,
+      message: "Asset deleted successfully.",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to deleted asset.",
+    };
   }
 }

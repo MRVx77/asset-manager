@@ -37,7 +37,7 @@ function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b bg-white">
-      <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4">
+      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <Link href={"/"} className="flex items-center gap-2">
             <div className="p-2 rounded-md bg-teal-500">
@@ -96,7 +96,7 @@ function Header() {
         </div>
         <div className="flex items-center gap-6 text-lg">
           {isPending ? null : user ? (
-            <div className="felx items-center gap-3">
+            <div className="flex items-center gap-3">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -112,7 +112,7 @@ function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>
-                    <div className="felx flex-col space-y-1 ">
+                    <div className="flex flex-col space-y-1 ">
                       <p className="text-sm font-medium leading-none">
                         {user.name}
                       </p>
