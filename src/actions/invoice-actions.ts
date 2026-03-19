@@ -92,3 +92,145 @@ export async function createInvoiceAction(purchaseId: string) {
     };
   }
 }
+
+export async function getUserInvoiceAction() {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: "Not authenticated",
+      };
+    }
+
+    const userInvoices = await db
+      .select()
+      .from(invoice)
+      .where(eq(invoice.userId, session.user.id))
+      .orderBy(invoice.createdAt);
+
+    return {
+      success: true,
+      invoice: userInvoices,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: "failed to fetch user invoices",
+    };
+  }
+}
+
+export async function getInvoiceHtmlAction(invoiceId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: "Not authenticated",
+      };
+    }
+
+    const [invoiceData] = await db
+      .select()
+      .from(invoice)
+      .where(eq(invoice.id, invoiceId))
+      .limit(1);
+
+    if (!invoiceData) {
+      return {
+        succes: false,
+        error: "Invoice not found",
+      };
+    }
+
+    if (
+      invoiceData.userId !== session.user.id &&
+      session.user.role !== "admin"
+    ) {
+      return {
+        success: false,
+        error: "Not Authroized",
+      };
+    }
+
+    if (!invoiceData.htmlContent) {
+      return {
+        succes: false,
+        error: "Html content not found",
+      };
+    }
+    return {
+      success: true,
+      html: invoiceData.htmlContent,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      succes: false,
+      error: "content not found",
+    };
+  }
+}
+
+export async function getInvoiceByIdAction(invoiceId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: "Not authenticated",
+      };
+    }
+
+    const [invoiceData] = await db
+      .select()
+      .from(invoice)
+      .where(eq(invoice.id, invoiceId))
+      .limit(1);
+
+    if (!invoiceData) {
+      return {
+        succes: false,
+        error: "Invoice not found",
+      };
+    }
+
+    if (
+      invoiceData.userId !== session.user.id &&
+      session.user.role !== "admin"
+    ) {
+      return {
+        success: false,
+        error: "Not Authroized",
+      };
+    }
+
+    if (!invoiceData) {
+      return {
+        succes: false,
+        error: "content not found!",
+      };
+    }
+    return {
+      success: true,
+      invoice: invoiceData,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      succes: false,
+      error: "content not found!!",
+    };
+  }
+}
