@@ -21,7 +21,7 @@ async function LoginPage() {
   if (session) redirect("/");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex items-center justify-center bg-slate-50 px-4">
       <Card className="w-full max-w-md shadow-lg rounded-lg overflow-hidden">
         <CardHeader className="flex flex-col items-center gap-3 py-8 bg-teal-50">
           <div className="p-4 rounded-full bg-teal-500">
@@ -33,6 +33,12 @@ async function LoginPage() {
           <CardDescription className="text-slate-600 text-center">
             Sign in to your account
           </CardDescription>
+          <p className="text-sm font-bold text-teal-700">
+            user email: test@gmail.com Pass:12345678
+          </p>
+          <p className="text-sm font-bold text-teal-700">
+            admin email: test2@gmail.com Pass:12345678
+          </p>
         </CardHeader>
 
         <CardContent className="px-6 py-8">
@@ -42,7 +48,7 @@ async function LoginPage() {
         <CardFooter className="flex justify-center py-4 bg-slate-50">
           <Link
             href="/"
-            className="text-sm text-slate-500 hover:text-teal-600 transition-colors"
+            className="text-sm text-slate-700 font-bold underline hover:text-teal-600 transition-colors"
           >
             Back to Home Page
           </Link>
