@@ -5,7 +5,6 @@ export default function Footer() {
   return (
     <footer className="bg-slate-100 text-slate-700 py-12">
       <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-        {/* Branding */}
         <div className="flex flex-col items-start">
           <h2 className="text-2xl font-bold text-teal-600">PixelGallery</h2>
           <p className="mt-2 max-w-xs text-sm">
@@ -15,7 +14,6 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Quick Links */}
         <div className="flex gap-12">
           <div className="flex flex-col gap-2">
             <h3 className="font-semibold">Explore</h3>
@@ -56,7 +54,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Social & Copyright */}
       <div className="mt-8 border-t border-slate-300 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-sm">
           &copy; 2026 PixelGallery. All rights reserved.
