@@ -112,6 +112,7 @@ export const asset = pgTable("asset", {
   updatedAt: timestamp("updated_at")
     .notNull()
     .$default(() => new Date()),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const payment = pgTable("payment", {

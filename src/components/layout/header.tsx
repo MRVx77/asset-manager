@@ -44,7 +44,7 @@ function Header() {
               <Package className="h-5 w-5 text-white" />
             </div>
             <span className="font-bold text-xl text-teal-700">
-              Asset Manager
+              PixelGallery
             </span>
           </Link>
 

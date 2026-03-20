@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { asset, category, purchase, user } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -72,8 +72,8 @@ export async function getUserAssetAction(userId: string) {
     return await db
       .select()
       .from(asset)
-      .where(eq(asset.userId, userId))
-      .orderBy(asset.createdAt);
+      .where(and(eq(asset.userId, userId), isNull(asset.deletedAt)))
+      .orderBy(desc(asset.createdAt));
   } catch (error) {
     console.log(error);
 
@@ -83,7 +83,10 @@ export async function getUserAssetAction(userId: string) {
 
 export async function getPublicAssetAction(categoryId?: number) {
   try {
-    let condition = and(eq(asset.isApproved, "approved"));
+    let condition = and(
+      eq(asset.isApproved, "approved"),
+      isNull(asset.deletedAt),
+    );
 
     if (categoryId) {
       condition = and(condition, eq(asset.categoryId, categoryId));
@@ -109,6 +112,10 @@ export async function getPublicAssetAction(categoryId?: number) {
 
 export async function getAssetByIdAction(assetId: string) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
     const [result] = await db
       .select({
         asset: asset,
@@ -122,6 +129,22 @@ export async function getAssetByIdAction(assetId: string) {
       .leftJoin(user, eq(asset.userId, user.id))
       .where(eq(asset.id, assetId));
 
+    if (!result) return null;
+
+    if (!result.asset.deletedAt) {
+      return result;
+    }
+
+    if (!session?.user) return null;
+    const purchaseExist = await db.query.purchase.findFirst({
+      where: and(
+        eq(purchase.assetId, assetId),
+        eq(purchase.userId, session.user.id),
+      ),
+    });
+
+    if (!purchaseExist) return null;
+
     return result;
   } catch (error) {
     console.log(error);
@@ -129,7 +152,7 @@ export async function getAssetByIdAction(assetId: string) {
   }
 }
 
-export async function deleteAssetAction(assteId: string) {
+export async function deleteAssetAction(assetId: string) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -140,7 +163,7 @@ export async function deleteAssetAction(assteId: string) {
     }
 
     const assetExist = await db.query.asset.findFirst({
-      where: eq(asset.id, assteId),
+      where: eq(asset.id, assetId),
     });
 
     if (!assetExist) {
@@ -151,17 +174,29 @@ export async function deleteAssetAction(assteId: string) {
       throw new Error("You are not allowed to delete this asset");
     }
 
+    if (assetExist.deletedAt) {
+      throw new Error("Asset already removed");
+    }
+
     const purchaseExists = await db.query.purchase.findFirst({
-      where: eq(purchase.assetId, assteId),
+      where: eq(purchase.assetId, assetId),
     });
 
     if (purchaseExists) {
-      throw new Error(
-        "This asset cannot be deleted because users have already purchased it",
-      );
+      await db
+        .update(asset)
+        .set({ deletedAt: new Date() })
+        .where(eq(asset.id, assetId));
+
+      revalidatePath("/dashbord/assets");
+      revalidatePath("/gallery");
+      return {
+        success: true,
+        message: "Asset removed from marketplace",
+      };
     }
 
-    await db.delete(asset).where(eq(asset.id, assteId));
+    await db.delete(asset).where(eq(asset.id, assetId));
 
     revalidatePath("/dashbord/assets");
     revalidatePath("/gallery");
@@ -174,7 +209,8 @@ export async function deleteAssetAction(assteId: string) {
     console.log(error);
     return {
       success: false,
-      message: "Failed to deleted asset.",
+      message:
+        error instanceof Error ? error.message : "Failed to delete asset.",
     };
   }
 }
