@@ -86,7 +86,7 @@ function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className="text-teal-600">Name</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your name" {...field} />
               </FormControl>
@@ -100,7 +100,7 @@ function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-teal-600">Email</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="Enter your email" {...field} />
               </FormControl>
@@ -114,7 +114,7 @@ function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-teal-600">Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -131,7 +131,7 @@ function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel className="text-teal-600">Confirm Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"

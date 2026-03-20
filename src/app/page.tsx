@@ -12,16 +12,16 @@ export default function Home() {
             <Package className="text-white h-16 w-16" />
           </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-teal-600">
-            Asset Management Platform
+            Welcome to PixelGallery
           </h1>
         </div>
         <p className="mt-6 max-w-150 text-lg text-slate-700">
-          Upload, mangae, buy or sell and share your wallpaper with ease
+          Upload, organize, share, and sell your digital assets with ease.
         </p>
         <div className="mt-12 flex flex-wrap gap-6 justify-center">
           <Link href={"/gallery"}>
             <Button className="bg-teal-500 text-white px-9 py-7 text-lg cursor-pointer">
-              Browse Gallery
+              Explore PixelGallery
             </Button>
           </Link>
         </div>
@@ -32,12 +32,12 @@ export default function Home() {
                 <Package className="w-6 h-6 text-teal-600" />
               </div>
               <CardTitle className="text-lg font-semibold text-center">
-                Organize
+                Organize Your Pixels
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-sm text-slate-500">
-                Categorize your image and add your assets
+                Easily categorize and manage all your images in one place.
               </p>
             </CardContent>
           </Card>
@@ -48,12 +48,12 @@ export default function Home() {
                 <Upload className="w-6 h-6 text-teal-600" />
               </div>
               <CardTitle className="text-lg font-semibold text-center">
-                Upload
+                Upload Your Creations
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-sm text-slate-500">
-                Upload and sell your assets
+                Showcase your Images/wallpapers and digital art to the world.
               </p>
             </CardContent>
           </Card>
@@ -64,12 +64,12 @@ export default function Home() {
                 <Share className="w-6 h-6 text-teal-600" />
               </div>
               <CardTitle className="text-lg font-semibold text-center">
-                Share and earn
+                Share & Earn
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-sm text-slate-500">
-                Share your assets and earn, instanly.
+                Share your assets and start earning instantly.
               </p>
             </CardContent>
           </Card>
