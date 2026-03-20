@@ -1,3 +1,4 @@
+import AuthLayout from "@/components/auth/auth-layout";
 import LoginButton from "@/components/auth/login-button";
 import {
   Card,
@@ -35,7 +36,7 @@ async function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginButton />
+          <AuthLayout />
         </CardContent>
         <CardFooter className="flex justify-center">
           <Link
